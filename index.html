@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html>
+<head>
+  <title>Consulta de coordenadas - NA FND</title>
+  <link rel="icon" href="../../favicon.ico">
+  <div id="Titulo">Núcleos Agrarios - Consulta de coordenadas y descarga de KML - FND</div>
+  <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <style type="text/css">
+          .navbar {
+            border-radius: 1px !important;
+            margin-bottom: 1px !important;
+            text-align:center;
+             padding-right: 150px;
+             min-height: 8px;
+
+            }
+          .navbar-default .navbar-brand, .navbar-brand:hover {
+            color: black;
+            text-align:center;
+            font-size: 20px;
+            }
+
+          .nav.navbar-nav {
+            color: white;
+            font-size: 20px;
+            text-align:center;
+            }
+
+          .col-sm-12 {
+            padding-top: 10px;
+            padding-bottom: 0px;
+            }
+
+          #map {
+            z-index: 1;
+            height: 500px;
+            background-color: #eee;
+            }
+          
+          div.olControlMousePosition {
+                font-size: medium;
+                color: #FFFFFF;
+                padding: 0 0.5em 0.5em 0.5em;
+            }
+          div.olControlScaleLine {
+                font-size: small;
+                color: #FFFFFF;
+            }
+          div.olControlLayerSwitcher
+              {
+                  padding: 10px 10px 10px 18px
+                  position: absolute;
+                  top: 25px;
+                  right: 0;
+                  width: 20em;
+                  font-family: sans-serif;
+                  font-weight: bold;
+                  margin-top: 3px;
+                  margin-left: 3px;
+                  margin-bottom: 3px;
+                  font-size: smaller;
+                  color: black;
+                  opacity:0.7;
+                  background-color: transparent;
+                  z-index: 10000;
+
+              }
+          div.olControlLayerSwitcher .layersDiv
+              {
+                  padding-top: 5px;
+                  padding-left: 10px;
+                  padding-bottom: 5px;
+                  padding-right: 10px;
+                  background-color: #CCCCCC !important;
+              }
+
+            #descKML {
+              height: 30px;
+              width: 100%;
+              z-index: 1;
+              font-size:14px;
+              padding-left: 10%;
+            }
+
+            #HeaderEstado{
+              width:140px;
+              height:20px;
+              text-align: center;
+              color: #FFFFFF;
+              text-shadow: 0px 0px 1px #96B0BB;
+            }
+
+            #listEstado {
+              border-radius:2px;
+              -moz-border-radius: 2px;
+              -o-border-radius: 2px;
+              -webkit-border-radius: 2px;
+              background-color: rgba(247,247,247,0.7);
+              border: 1px solid #ffffff;
+              box-shadow: 0 0 3px #C5C5C5;
+              text-align: center;
+              font-size:12px;
+              -moz-box-shadow: 0 0 3px #C5C5C5;
+              -webkit-box-shadow: 0 0 3px #C5C5C5;
+              height:100%;
+              width:100%;
+
+
+                    }
+            #listNA {
+              border-radius:2px;
+              -moz-border-radius: 2px;
+              -o-border-radius: 2px;
+              -webkit-border-radius: 2px;
+              background-color: rgba(247,247,247,0.7);
+              border: 1px solid #ffffff;
+              box-shadow: 0 0 3px #C5C5C5;
+              text-align: center;
+              font-size:12px;
+              -moz-box-shadow: 0 0 3px #C5C5C5;
+              -webkit-box-shadow: 0 0 3px #C5C5C5;
+              height:100%;
+              width:100%;
+
+                    }
+
+            #tabla
+            {
+                text-align:center;
+                vertical-align:middle;
+            }
+
+            #Titulo{
+              text-align: center;
+              font-size:25px;
+              color: white;
+              background-color: #333;
+              text-shadow: 0px 0px 1px #96B0BB;
+            }
+
+  </style>
+    <link rel="stylesheet" type="text/css" href="https://code.jquery.com/ui/1.10.3/themes/ui-lightness/jquery-ui.css">
+   
+</head>
+<body>
+
+  <div class="navbar navbar-default" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+        </div>
+    </div>
+  </div>
+<div class=row>
+  <div class="col-sm-12">
+    <div class="col-sm-3" id="div-1">
+      <h3 style="text-align:center"><span class="label label-default">Seleccionar Estado:</span></h3>
+        </br>
+         <select multiple class="form-control" id="listEstado" name="listMun" type="text" onchange="listaNA()">
+                <option value="CAMPECHE">CAMPECHE</option>
+                <option value="JALISCO">JALISCO</option>
+                <option value="OAXACA">OAXACA</option>
+                <option value="QUINTANA ROO">QUINTANA ROO</option>
+                <option value="YUCATAN">YUCATAN</option>
+        </select>
+        </br>
+        <h3 style="text-align:center"><span class="label label-default">Núcleo Agrario:</span></h3>
+          </br>
+        <select multiple class="form-control" id="listNA" name="listNA"></select>
+        </br>
+        <div style="text-align:center">
+        <button  id="btnBuscar" class="btn btn-default" onclick="cargarRes()" type="button">Obtener coordenadas y descargar KML</button>
+        </div>
+        </br>
+        <table class="table table-striped" style="text-align: center;" id="info_div">
+          
+        </table>
+    </div>
+    
+    <div class="col-sm-9">
+      <div id="map" class="olMap"></div>
+    </div>
+
+  </div>
+    <br>
+   <div style="text-align:right" class="panel-footer"><h6><em>Powered by <a href="https://twitter.com/jpablogomezb"> Geoinnovare</a></em></h6></div>
+</div>
+</body>
+    <!-- OpenLayers -->
+    <!-- <script src="http://dev.openlayers.org/OpenLayers.js"></script> -->
+    <script src="js/lib/OpenLayers.js"></script>
+    <!-- JQuery -->
+    <script type='text/javascript' src='https://code.jquery.com/jquery-1.10.2.min.js'></script>
+    <script type='text/javascript' src='https://code.jquery.com/ui/1.10.3/jquery-ui.min.js'></script>
+     <script type='text/javascript' src='bootstrap/js/bootstrap.min.js'></script>
+    <!--<link href="http://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet"> -->
+</html>
+
+<script type="text/javascript">
+  var map;
+  var datos = {
+              xMin : "",
+              xMax  : "",
+              yMin : "",
+              yMax  : "",
+      };
+
+  $(function() {
+      $("#info_div").hide();
+      $("#btnKML").hide();
+      //$("#descKML").hide();
+           });
+  
+//LAYERS
+//Bing Api Key
+var BingKey = "Aj-muALyX0OpYsdC50eA6F4VIfK1LU4tSrh-I6bGlFdgLAK8ZzysnRZbuZOGNvA1";
+//Capas mapa
+var topo = new OpenLayers.Layer.XYZ( "Mapa Topográfico (ESRI)",
+            "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/${z}/${y}/${x}",
+            {'sphericalMercator': true, numZoomLevels: 16, visibility: true} );
+var esri = new OpenLayers.Layer.XYZ( "Imágenes Satélite (ESRI)",
+            "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}",
+            {sphericalMercator: true, numZoomLevels: 18, visibility: false});
+var img = new OpenLayers.Layer.Bing({
+        name: "Imágenes Satélite (Bing Maps)",
+        key: BingKey,
+        type: "AerialWithLabels",
+        'sphericalMercator': true,
+        transparent: true,
+        isBaseLayer: true,
+        visibility: false,
+        opacity: 1
+    }),
+
+geographic = new OpenLayers.Projection("EPSG:4326"); // WGS84 Projection
+
+//Map properties
+map = new OpenLayers.Map({
+  div: "map",
+  layers: [esri,img,topo],
+  projection: new OpenLayers.Projection("EPSG:900913"),
+  controls: [
+  new OpenLayers.Control.Navigation({
+      dragPanOptions: {
+          enableKinetic: true
+      }
+  }),
+  //new OpenLayers.Control.PanZoom(),
+  //new OpenLayers.Control.PanZoomBar(),
+  new OpenLayers.Control.Attribution(),
+  new OpenLayers.Control.ScaleLine(),
+  new OpenLayers.Control.MousePosition(),
+  //new OpenLayers.Control.LayerSwitcher
+  new OpenLayers.Control.KeyboardDefaults(),
+  new OpenLayers.Control.Zoom(
+                 {
+                     zoomInId: "zoom_in",
+                     zoomOutId: "zoom_out"
+                 }
+             ),
+
+  ],
+
+  center: new OpenLayers.LonLat(-102.3, 23.8).transform(new OpenLayers.Projection("EPSG:4326"),
+  new OpenLayers.Projection("EPSG:900913")),
+  zoom: 4.6,
+  displayProjection: geographic,
+});
+
+  var ls = new OpenLayers.Control.LayerSwitcher()
+  map.addControl(ls);
+  ls.maximizeControl();
+
+//Fill listbox with available NA for each state
+function listaNA(){
+  clearlistbox(listNA);
+  var estado = $('#listEstado').val();
+  var sql_col = "SELECT nom_na FROM na_fnd WHERE nom_edo = " + "'" + estado + "'" + "ORDER BY nom_na ASC"
+    $.ajax({
+        url : "https://geoinnovare.carto.com/api/v2/sql/?q="+sql_col,
+        dataType : "jsonp",
+            success : function(data) {
+          $.each(data.rows, function(i,val){
+          $('#listNA').append('<option value="'+val.nom_na+'">'+val.nom_na+'</option');
+          });
+        }});
+     }
+
+function clearlistbox(lb){
+ for (var i=lb.options.length-1; i>=0; i--){
+   lb.options[i] = null;
+    }
+     lb.selectedIndex = -1;
+   }
+
+//Get bounding box coordinates of a selected NA
+function BBox(){
+  var nucleo = $('#listNA').val();
+  var http_request = new XMLHttpRequest();
+          var requestBase = "https://geoinnovare.carto.com/api/v2/sql/?q=";
+          var sqlQuery = "SELECT ST_xMin(the_geom) as west, ST_xMax(the_geom) as east, ST_yMax(the_geom) as north, ST_yMin(the_geom) as south FROM na_fnd WHERE nom_na = " + "'" + nucleo + "'";
+          var url = requestBase + sqlQuery;  // Esta URL deber?a devolver datos JSON
+          // Descarga los datos JSON del servidor.
+          http_request.onreadystatechange = handle_json;
+          http_request.open("GET", url, true);
+          http_request.send(null);
+
+    function handle_json() {
+            if (http_request.readyState == 4) { // La respuesta esta lista
+              if (http_request.status == 200) { // La respuesta es correcta
+                var json_data = http_request.responseText;
+                var datos_na= JSON.parse(json_data);//eval("(" + json_data + ")");
+                if (datos_na.total_rows == 1) {
+
+                  datos.xMin    = datos_na.rows[0].west;
+                  datos.xMax   = datos_na.rows[0].east;
+                  datos.yMax    = datos_na.rows[0].north;
+                  datos.yMin    = datos_na.rows[0].south;
+                  verInfo();
+
+                } else {
+                 alert("Hubo un problema en el calculo de coordenadas, intentelo más tarde...");
+
+                }
+              } else {
+                alert("Información no disponible");
+              }
+              http_request = null;
+            }
+          }
+       }
+
+function verInfo(){
+  var contenido = "<p style='text-align: center;'><b>Coordenadas NA:</p>" +
+      "<table ><tr><td>Oeste:</td><td>" + datos.xMin + "</td></tr>"+
+      "<tr><td>Este:</td><td>" + datos.xMax + "</td></tr>" +
+      "<tr><td>Norte:</td><td>" + datos.yMax + "</td></tr>" +
+      "<tr><td>Sur:</td><td>" + datos.yMin+ "</td></tr>" +
+      "</table>";
+      info_div.innerHTML = contenido;
+       $("#info_div").show();
+       descargarKML();
+    }
+
+// load NA in the map
+function cargarRes() {
+ BBox();
+ var nucleo = $('#listNA').val();
+ var sql_col = "SELECT * FROM na_fnd WHERE nom_na = " + "'" + nucleo + "'"
+
+  layerNA = new OpenLayers.Layer.Vector("NA " + nucleo , {
+          visibility: true,
+          projection: geographic,
+          strategies: [new OpenLayers.Strategy.Fixed()],
+          protocol: new OpenLayers.Protocol.Script({
+            url: "https://geoinnovare.carto.com/api/v2/sql",
+            params: {
+              q: sql_col,
+              format: "geojson"
+            },
+            format: new OpenLayers.Format.GeoJSON({
+              ignoreExtraDims: true
+            }),
+            callbackKey: "callback"
+          }),
+          styleMap: new OpenLayers.StyleMap({
+            'default': new OpenLayers.Style(null, {
+              rules: [
+                new OpenLayers.Rule({
+                  symbolizer: {strokeColor: '#ffffff', strokeWidth: 1.5, fill: true, fillColor: '#ffff03', fillOpacity: 0.15,
+                  label: " ${nom_na}",
+                                      labelAlign: "cc",
+                                      fontColor: "#000000",
+                                      fontOpacity: 1,
+                                      fontFamily: "Arial",
+                                      fontSize: 9,
+                                      fontWeight: "100"},
+
+                })
+              ]
+            })
+          }),
+          eventListeners: {
+                      loadend: function (evt) {
+                        var lbNA_extent = layerNA.getDataExtent();
+                        map.zoomToExtent(lbNA_extent);
+
+                         }
+                       },
+
+        })
+
+          map.addLayer(layerNA);
+      }
+
+//Show link to download a KML file from a selected NA
+function  descargarKML() {
+     var nucleo = $('#listNA').val();
+     var requestBase = "https://geoinnovare.carto.com/api/v2/sql/?format=KML&q=";
+     var sqlQuery = "SELECT * FROM na_fnd WHERE nom_na = " + "'" + nucleo + "'";
+     var url = requestBase + sqlQuery;  // Esta URL devuelve los datos JSON
+
+      var descKML = document.createElement("a");
+      descKML.href = url;
+      descKML.innerHTML = "<tr><td></td><td><a id='descKML'>Descargar KML</a></td></tr>";
+      document.getElementById("info_div").appendChild(descKML);
+
+    } 
+</script>
